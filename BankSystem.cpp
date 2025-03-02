@@ -59,7 +59,7 @@ sClient ConvertLineTosClient(string DataLine, string delim = "||")
     C.AccountBalance = stod(vString[4]);
     return C;
 }
-string ConvertsClientToLine(sClient C, string delim = "||")
+string ConvertsClientToLine(sClient &C, string delim = "||")
 {
     string DataLine = C.AccountNumber + delim + C.PinCode + delim + C.Name + delim + C.Phone + delim + to_string(C.AccountBalance);
     return DataLine;
@@ -153,7 +153,7 @@ sClient AddClient(vector<sClient> &c)
     cin >> client.AccountBalance;
     return client;
 }
-void PrintClientCard(sClient Client)
+void PrintClientCard(sClient &Client)
 {
     cout << "\nThe following are the client details:\n";
     cout << "\nAccout Number: " << Client.AccountNumber;
@@ -187,7 +187,7 @@ void TWOcreateaclient(vector<sClient> &c)
         cin >> condition;
     } while (condition);
 }
-vector<sClient> MarkForDeleteClient(vector<sClient> &c, string AccountNumber)
+vector<sClient> MarkForDeleteClient(vector<sClient> &c, string &AccountNumber)
 {
     bool found = false;
     for (sClient &client : c)
@@ -207,7 +207,6 @@ vector<sClient> MarkForDeleteClient(vector<sClient> &c, string AccountNumber)
 }
 void ThreeDeleteClient(vector<sClient> &c)
 {
-    c = LoadfiletoClientsV();
     bool condition, found = false;
     string AccountNumber;
     cout << "Enter the Account Number of the client you want to delete: ";
@@ -238,7 +237,6 @@ void ThreeDeleteClient(vector<sClient> &c)
 }
 void FourUpdateClient(vector<sClient> &c)
 {
-    c = LoadfiletoClientsV();
     bool found = false;
     string AccountNumber;
     cout << "Enter the Account Number of the client you want to update: ";
@@ -279,7 +277,6 @@ void FourUpdateClient(vector<sClient> &c)
 }
 void FiveFindClient(vector<sClient> &c)
 {
-    c = LoadfiletoClientsV();
     bool found = false;
     string AccountNumber;
     cout << "Enter the Account Number of the client you want to find: ";
@@ -300,7 +297,6 @@ void FiveFindClient(vector<sClient> &c)
 }
 bool findclient(vector<sClient> &c, string &AccountNumber)
 {
-    c = LoadfiletoClientsV();
     cout << "Enter the Account Number of the client you want to find: ";
     cin >> AccountNumber;
     for (sClient &s : c)
@@ -424,86 +420,9 @@ void TransactionMenu(vector<sClient> &c)
         }
     }
 }
-void menu()
+void CountPermissionF(sUser &user)
 {
-    vector<sClient> v;
-    while (true)
-    {
-        v = LoadfiletoClientsV();
-        system("cls");
-        cout << "\n===== Client Management System =====\n";
-        cout << "1) Show Clients\n";
-        cout << "2) Add Client\n";
-        cout << "3) Delete Client\n";
-        cout << "4) Update Client\n";
-        cout << "5) Find Client\n";
-        cout << "6) Transaction Menu\n";
-        cout << "7) Exit\n";
-        cout << "Enter your choice: ";
-
-        int choice;
-        cin >> choice;
-
-        switch (choice)
-        {
-        case 1:
-            system("cls");
-            cout << "==================================================================================" << endl;
-            cout << setw(50) << right << "Show Clients selected.\n";
-            cout << "==================================================================================" << endl;
-            ONEshowClientsList(v);
-            backtomainmenu();
-            break;
-        case 2:
-            system("cls");
-
-            cout << "==================================================================================" << endl;
-            cout << setw(50) << right << "Add Client selected.\n";
-            cout << "==================================================================================" << endl;
-            TWOcreateaclient(v);
-            backtomainmenu();
-            break;
-        case 3:
-            system("cls");
-
-            cout << "==================================================================================" << endl;
-            cout << setw(50) << right << "Delete Client selected.\n";
-            cout << "==================================================================================" << endl;
-            ThreeDeleteClient(v);
-            backtomainmenu();
-            break;
-        case 4:
-            system("cls");
-            cout << "==================================================================================" << endl;
-            cout << setw(50) << right << "Update Client selected.\n";
-            cout << "==================================================================================" << endl;
-            FourUpdateClient(v);
-            backtomainmenu();
-            break;
-        case 5:
-            system("cls");
-
-            cout << "==================================================================================" << endl;
-            cout << setw(50) << right << "Find Client selected.\n";
-            cout << "==================================================================================" << endl;
-            FiveFindClient(v);
-            backtomainmenu();
-            break;
-        case 6:
-            system("cls");
-            TransactionMenu(v);
-            break;
-        case 7:
-            cout << "Exiting program...\n";
-            return;
-        default:
-            cout << "Invalid choice. Try again.\n";
-        }
-    }
-}
-void permissionf(sUser &user)
-{
-    bool arr[7],per;
+    bool arr[7], per;
     user.permission = 0;
     cout << "Do you want to give full access? (1/0)\n";
     cin >> per;
@@ -514,19 +433,19 @@ void permissionf(sUser &user)
     else
     {
         cout << "Do you want to give access to: \n";
-        cout << "Show Clients list?(1/0)";
+        cout << "Show Clients list? (1/0) ";
         cin >> arr[0];
-        cout << "Add New Clients?1/0";
+        cout << "Add New Clients? (1/0) ";
         cin >> arr[1];
-        cout << "Delete Clients?1/0";
+        cout << "Delete Clients? (1/0) ";
         cin >> arr[2];
-        cout << "Update Clients? 1/0";
+        cout << "Update Clients? (1/0) ";
         cin >> arr[3];
-        cout << "Find Clients? 1/0";
+        cout << "Find Clients? (1/0) ";
         cin >> arr[4];
-        cout << "Transactions? 1/0";
+        cout << "Transactions? (1/0) ";
         cin >> arr[5];
-        cout << "Manage Users? 1/0";
+        cout << "Manage Users? (1/0)";
         cin >> arr[6];
     }
     for (short i = 0; i < 7; i++)
@@ -537,7 +456,29 @@ void permissionf(sUser &user)
         }
     }
 }
-sUser ConvertLineTosUser(string DataLine, string delim = "||")
+bool Permission(sUser user, short numberofoption)
+{
+    bool valid = false;
+    if (user.permission == -1)
+    {
+        return valid = true;
+    }
+    for (short i = 6; i >= 0; i--)
+    {
+        if (user.permission >= pow(2, i))
+        {
+            user.permission -= pow(2, i);
+            if (i + 1 == numberofoption)
+            {
+                return valid = true;
+            }
+        }
+        if (user.permission == 0)
+            break;
+    }
+    return valid;
+}
+sUser ConvertLineTosUser(string &DataLine, string delim = "||")
 {
     sUser U;
     vector<string> vString = SplitString(DataLine, delim);
@@ -546,7 +487,7 @@ sUser ConvertLineTosUser(string DataLine, string delim = "||")
     U.permission = stoi(vString[2]);
     return U;
 }
-string ConvertsUserToLine(sUser U, string delim = "||")
+string ConvertsUserToLine(sUser &U, string delim = "||")
 {
     string DataLine = U.Username + delim + U.password + delim + to_string(U.permission);
     return DataLine;
@@ -567,7 +508,7 @@ vector<sUser> LoadfiletoUsersV()
     }
     else
     {
-        cout << "Error: Unable to open file" << endl;
+        cout << "Error: Unable to open file3" << endl;
     }
     return u;
 }
@@ -630,10 +571,10 @@ sUser AddUser(vector<sUser> &u)
     } while (found);
     cout << "Enter Password: ";
     getline(cin, user.password);
-    permissionf(user);
+    CountPermissionF(user);
     return user;
 }
-void PrintUserCard(sUser user)
+void PrintUserCard(sUser &user)
 {
     cout << "\nThe following are the user details:\n";
     cout << "\nUsername: " << user.Username;
@@ -665,7 +606,7 @@ void CreateaUsers(vector<sUser> &u)
         cin >> condition;
     } while (condition);
 }
-vector<sUser> MarkForDeleteUser(vector<sUser> &u, string Username)
+vector<sUser> MarkForDeleteUser(vector<sUser> &u, string &Username)
 {
     bool found = false;
     for (sUser &user : u)
@@ -683,11 +624,12 @@ vector<sUser> MarkForDeleteUser(vector<sUser> &u, string Username)
     }
     return u;
 }
-void Deleteuser(vector<sUser> &u)
+void Deleteuser(vector<sUser> &u, sUser &user)
 {
-    u=LoadfiletoUsersV();
+    u = LoadfiletoUsersV();
     bool condition, found = false;
     string Username;
+    sUser TheUserWeWantToDelete;
     cout << "Enter the Username of the user you want to delete: ";
     cin >> Username;
     for (sUser &s : u)
@@ -696,6 +638,7 @@ void Deleteuser(vector<sUser> &u)
         {
             PrintUserCard(s);
             found = true;
+            TheUserWeWantToDelete = s;
         }
     }
     if (!found)
@@ -704,13 +647,20 @@ void Deleteuser(vector<sUser> &u)
     }
     else
     {
-        cout << "\nAre you sure you want to delete this user? (1/0): ";
-        cin >> condition;
-        if (condition)
+        if (user.permission == -1 && TheUserWeWantToDelete.permission != -1)
         {
-            u = MarkForDeleteUser(u, Username);
-            write_V_UsersToFile(u);
-            cout << "User deleted successfully" << endl;
+            cout << "You do not have permission to delete this user\n";
+        }
+        else
+        {
+            cout << "\nAre you sure you want to delete this user? (1/0): ";
+            cin >> condition;
+            if (condition)
+            {
+                u = MarkForDeleteUser(u, Username);
+                write_V_UsersToFile(u);
+                cout << "User deleted successfully" << endl;
+            }
         }
     }
 }
@@ -740,7 +690,7 @@ void UpdateUser(vector<sUser> &u)
                 getline(cin >> ws, s.Username);
                 cout << "Enter the new Password: ";
                 getline(cin, s.password);
-                permissionf(s);
+                CountPermissionF(s);
                 break;
             }
         }
@@ -773,9 +723,251 @@ void FindUser(vector<sUser> &u)
         cout << "User not found" << endl;
     }
 }
+void ManageMenuUser(vector<sUser> &u, sUser &user)
+{
+    while (true)
+    {
+        u = LoadfiletoUsersV();
+        system("cls");
+        cout << "\n===== Manage Users Menu Screen =====\n";
+        cout << "1) List Users\n";
+        cout << "2) Add New User\n";
+        cout << "3) Delete User\n";
+        cout << "4) Update User\n";
+        cout << "5) Find User\n";
+        cout << "6) Main Menu\n";
+        cout << "Enter your choice: ";
 
+        int choice;
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            system("cls");
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "List users selected.\n";
+            cout << "==================================================================================" << endl;
+            ShowUsersList(u);
+            backtomainmenu();
+            break;
+        case 2:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Add User selected.\n";
+            cout << "==================================================================================" << endl;
+            CreateaUsers(u);
+            backtomainmenu();
+            break;
+        case 3:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Delete User selected.\n";
+            cout << "==================================================================================" << endl;
+            Deleteuser(u, user);
+            backtomainmenu();
+            break;
+        case 4:
+            system("cls");
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Update User selected.\n";
+            cout << "==================================================================================" << endl;
+            UpdateUser(u);
+            backtomainmenu();
+            break;
+        case 5:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Find User selected.\n";
+            cout << "==================================================================================" << endl;
+            FindUser(u);
+            backtomainmenu();
+            break;
+        case 6:
+            backtomainmenu();
+            return;
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+}
+void NoPermissionText()
+{
+    cout << "==========================================================\n";
+    cout << "You have no access to this option,please contact the admin\n";
+    cout << "==========================================================\n";
+}
+void menu(vector<sUser> &u, sUser &user)
+{
+    vector<sClient> v;
+    while (true)
+    {
+        v = LoadfiletoClientsV();
+        u = LoadfiletoUsersV();
+        system("cls");
+        cout << "\n===== Client Management System =====\n";
+        cout << "1) Show Clients\n";
+        cout << "2) Add Client\n";
+        cout << "3) Delete Client\n";
+        cout << "4) Update Client\n";
+        cout << "5) Find Client\n";
+        cout << "6) Transaction Menu\n";
+        cout << "7) Manage Users Menu\n";
+        cout << "8) Login Page\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            system("cls");
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Show Clients selected.\n";
+            cout << "==================================================================================" << endl;
+            if (Permission(user, 1))
+            {
+                ONEshowClientsList(v);
+            }
+            else
+            {
+                NoPermissionText();
+            }
+
+            backtomainmenu();
+            break;
+        case 2:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Add Client selected.\n";
+            cout << "==================================================================================" << endl;
+            if (Permission(user, 2))
+            {
+                TWOcreateaclient(v);
+            }
+            else
+            {
+                NoPermissionText();
+            }
+
+            backtomainmenu();
+            break;
+        case 3:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Delete Client selected.\n";
+            cout << "==================================================================================" << endl;
+            if (Permission(user, 3))
+            {
+                ThreeDeleteClient(v);
+            }
+            else
+            {
+                NoPermissionText();
+            }
+
+            backtomainmenu();
+            break;
+        case 4:
+            system("cls");
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Update Client selected.\n";
+            cout << "==================================================================================" << endl;
+            if (Permission(user, 4))
+            {
+                FourUpdateClient(v);
+            }
+            else
+            {
+                NoPermissionText();
+            }
+
+            backtomainmenu();
+            break;
+        case 5:
+            system("cls");
+
+            cout << "==================================================================================" << endl;
+            cout << setw(50) << right << "Find Client selected.\n";
+            cout << "==================================================================================" << endl;
+            if (Permission(user, 5))
+            {
+                FiveFindClient(v);
+            }
+            else
+            {
+                NoPermissionText();
+            }
+            backtomainmenu();
+            break;
+        case 6:
+            system("cls");
+            if (Permission(user, 6))
+            {
+                TransactionMenu(v);
+            }
+            else
+            {
+                NoPermissionText();
+                backtomainmenu();
+            }
+
+            break;
+        case 7:
+            system("cls");
+            if (Permission(user, 7))
+            {
+                ManageMenuUser(u, user);
+            }
+            else
+            {
+                NoPermissionText();
+                backtomainmenu();
+            }
+            break;
+        case 8:
+            return;
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+}
+
+void loginScreen()
+{
+    vector<sUser> u;
+    u = LoadfiletoUsersV();
+    sUser user;
+    while (true)
+    {
+        system("cls");
+        cout << "==================================================================================" << endl;
+        cout << setw(50) << right << "Login Page\n";
+        cout << "==================================================================================" << endl;
+        cout << "Username: ";
+        cin >> user.Username;
+        cout << "Password: ";
+        cin >> user.password;
+        for (sUser &s : u)
+        {
+            if (user.Username == s.Username && user.password == s.password)
+            {
+                menu(u, s);
+                break;
+            }
+        }
+        cout << "User not found\n";
+        cin.ignore();
+        cin.get();
+    }
+}
 int main()
 {
-    menu();
+    loginScreen();
     return 0;
 }
