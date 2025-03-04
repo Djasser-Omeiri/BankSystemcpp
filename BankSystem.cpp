@@ -84,6 +84,8 @@ vector<sClient> LoadfiletoClientsV()
     }
     return c;
 }
+
+// Function to write clients from a vector to a file
 void write_V_ClientsToFile(vector<sClient> &c)
 {
     ofstream file;
@@ -370,6 +372,8 @@ void ShowAllBalances(vector<sClient> &c)
              << left << setw(15) << "||" + to_string(client.AccountBalance) << endl;
     }
 }
+
+// Function to display the transaction menu and handle transactions
 void TransactionMenu(vector<sClient> &c)
 {
     while (true)
@@ -420,6 +424,8 @@ void TransactionMenu(vector<sClient> &c)
         }
     }
 }
+
+// Function to calculate user permissions
 void CountPermissionF(sUser &user)
 {
     bool arr[7], per;
@@ -456,6 +462,8 @@ void CountPermissionF(sUser &user)
         }
     }
 }
+
+// Function to check user permissions
 bool Permission(sUser user, short numberofoption)
 {
     bool valid = false;
@@ -492,6 +500,8 @@ string ConvertsUserToLine(sUser &U, string delim = "||")
     string DataLine = U.Username + delim + U.password + delim + to_string(U.permission);
     return DataLine;
 }
+
+// Function to load users from a file into a vector
 vector<sUser> LoadfiletoUsersV()
 {
     vector<sUser> u;
@@ -512,6 +522,8 @@ vector<sUser> LoadfiletoUsersV()
     }
     return u;
 }
+
+// Function to write users from a vector to a file
 void write_V_UsersToFile(vector<sUser> &u)
 {
     ofstream file;
@@ -799,6 +811,8 @@ void NoPermissionText()
     cout << "You have no access to this option,please contact the admin\n";
     cout << "==========================================================\n";
 }
+
+// Function to display the main menu and handle client management
 void menu(vector<sUser> &u, sUser &user)
 {
     vector<sClient> v;
@@ -938,6 +952,7 @@ void menu(vector<sUser> &u, sUser &user)
     }
 }
 
+// Function to display the login screen and handle user login
 void loginScreen()
 {
     vector<sUser> u;
