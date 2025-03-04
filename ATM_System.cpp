@@ -178,7 +178,7 @@ void TransactionMenu(sClient &client)
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Quick Withdraw Selected.\n";
             cout << "==================================================================================" << endl;
-            Withdraw(clie);
+            Withdraw(client);
             backtomainmenu();
             break;
         case AtmMenu::Normal_Withdraw:
