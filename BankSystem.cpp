@@ -5,6 +5,33 @@
 #include <vector>
 #include <cmath>
 using namespace std;
+enum UMenu
+{
+    eListUsers = 1,
+    eAddUser = 2,
+    eDeleteUser = 3,
+    eUpdateUser = 4,
+    eFindUser = 5,
+    eMainMenu = 6
+};
+enum TransMenu
+{
+    eDeposit = 1,
+    eWithdraw = 2,
+    ebalances = 3,
+    eMenu = 4
+};
+enum Menu
+{
+    eShowClients = 1,
+    eAddClient = 2,
+    eDeleteClient = 3,
+    eUpdateClient = 4,
+    eFindClient = 5,
+    eTranscations = 6,
+    eUserMenu = 7,
+    eLoginPage = 8
+};
 typedef struct sClient
 {
     string AccountNumber;
@@ -19,6 +46,7 @@ typedef struct sUser
     string Username;
     string password;
     short permission;
+    bool permissions[7] = {false};
     bool MarkForDelete = false;
 } sUser;
 void backtomainmenu()
@@ -70,17 +98,15 @@ vector<sClient> LoadfiletoClientsV()
     ifstream file;
     file.open("clients.txt");
     string DataLine;
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         while (getline(file, DataLine))
         {
             c.push_back(ConvertLineTosClient(DataLine));
         }
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
     }
     return c;
 }
@@ -90,7 +116,10 @@ void write_V_ClientsToFile(vector<sClient> &c)
 {
     ofstream file;
     file.open("clients.txt");
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+
+    else
     {
         for (sClient &client : c)
         {
@@ -100,10 +129,6 @@ void write_V_ClientsToFile(vector<sClient> &c)
             }
         }
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
     }
 }
 void ONEshowClientsList(vector<sClient> &c)
@@ -168,14 +193,12 @@ void WriteClientToFile(sClient C)
 {
     ofstream file;
     file.open("clients.txt", ios::app);
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         file << ConvertsClientToLine(C) << endl;
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
     }
 }
 void TWOcreateaclient(vector<sClient> &c)
@@ -202,9 +225,8 @@ vector<sClient> MarkForDeleteClient(vector<sClient> &c, string &AccountNumber)
         }
     }
     if (!found)
-    {
         cout << "Client not found" << endl;
-    }
+
     return c;
 }
 void ThreeDeleteClient(vector<sClient> &c)
@@ -222,9 +244,7 @@ void ThreeDeleteClient(vector<sClient> &c)
         }
     }
     if (!found)
-    {
         cout << "Client not found" << endl;
-    }
     else
     {
         cout << "\nAre you sure you want to delete this client? (1/0): ";
@@ -273,9 +293,7 @@ void FourUpdateClient(vector<sClient> &c)
         cout << "Client updated successfully" << endl;
     }
     else
-    {
         cout << "Client not found" << endl;
-    }
 }
 void FiveFindClient(vector<sClient> &c)
 {
@@ -293,9 +311,7 @@ void FiveFindClient(vector<sClient> &c)
         }
     }
     if (!found)
-    {
         cout << "Client not found" << endl;
-    }
 }
 bool findclient(vector<sClient> &c, string &AccountNumber)
 {
@@ -325,6 +341,7 @@ void Deposit(vector<sClient> &c)
             if (AccountNumber == s.AccountNumber)
             {
                 s.AccountBalance += amount;
+                cout << "\nYour New Balance is: " << s.AccountBalance << endl;
                 break;
             }
         }
@@ -346,11 +363,11 @@ void Withdraw(vector<sClient> &c)
                 if (s.AccountBalance >= amount)
                 {
                     s.AccountBalance -= amount;
+                    cout << "\nYour New Balance is: " << s.AccountBalance;
                 }
+
                 else
-                {
                     cout << "Insufficient funds" << endl;
-                }
                 break;
             }
         }
@@ -374,6 +391,7 @@ void ShowAllBalances(vector<sClient> &c)
 }
 
 // Function to display the transaction menu and handle transactions
+
 void TransactionMenu(vector<sClient> &c)
 {
     while (true)
@@ -392,7 +410,7 @@ void TransactionMenu(vector<sClient> &c)
 
         switch (choice)
         {
-        case 1:
+        case TransMenu::eDeposit:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Deposit selected.\n";
@@ -400,7 +418,7 @@ void TransactionMenu(vector<sClient> &c)
             Deposit(c);
             backtomainmenu();
             break;
-        case 2:
+        case TransMenu::eWithdraw:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Withdraw selected.\n";
@@ -408,7 +426,7 @@ void TransactionMenu(vector<sClient> &c)
             Withdraw(c);
             backtomainmenu();
             break;
-        case 3:
+        case TransMenu::ebalances:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Total Balances selected.\n";
@@ -416,7 +434,7 @@ void TransactionMenu(vector<sClient> &c)
             ShowAllBalances(c);
             backtomainmenu();
             break;
-        case 4:
+        case TransMenu::eMenu:
             system("cls");
             return;
         default:
@@ -468,18 +486,14 @@ bool Permission(sUser user, short numberofoption)
 {
     bool valid = false;
     if (user.permission == -1)
-    {
         return valid = true;
-    }
     for (short i = 6; i >= 0; i--)
     {
         if (user.permission >= pow(2, i))
         {
             user.permission -= pow(2, i);
             if (i + 1 == numberofoption)
-            {
                 return valid = true;
-            }
         }
         if (user.permission == 0)
             break;
@@ -508,17 +522,15 @@ vector<sUser> LoadfiletoUsersV()
     ifstream file;
     file.open("users.txt");
     string DataLine;
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         while (getline(file, DataLine))
         {
             u.push_back(ConvertLineTosUser(DataLine));
         }
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file3" << endl;
     }
     return u;
 }
@@ -528,7 +540,9 @@ void write_V_UsersToFile(vector<sUser> &u)
 {
     ofstream file;
     file.open("users.txt");
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         for (sUser &user : u)
         {
@@ -538,10 +552,6 @@ void write_V_UsersToFile(vector<sUser> &u)
             }
         }
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
     }
 }
 void ShowUsersList(vector<sUser> &u)
@@ -597,14 +607,12 @@ void WriteUserToFile(sUser U)
 {
     ofstream file;
     file.open("users.txt", ios::app);
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         file << ConvertsUserToLine(U) << endl;
         file.close();
-    }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
     }
 }
 void CreateaUsers(vector<sUser> &u)
@@ -631,9 +639,8 @@ vector<sUser> MarkForDeleteUser(vector<sUser> &u, string &Username)
         }
     }
     if (!found)
-    {
         cout << "Client not found" << endl;
-    }
+
     return u;
 }
 void Deleteuser(vector<sUser> &u, sUser &user)
@@ -654,15 +661,12 @@ void Deleteuser(vector<sUser> &u, sUser &user)
         }
     }
     if (!found)
-    {
         cout << "Client not found" << endl;
-    }
+
     else
     {
-        if (user.permission == -1 && TheUserWeWantToDelete.permission != -1)
-        {
-            cout << "You do not have permission to delete this user\n";
-        }
+        if (user.permission != -1 && TheUserWeWantToDelete.permission == -1)
+            cout << "\nYou do not have permission to delete this user\n";
         else
         {
             cout << "\nAre you sure you want to delete this user? (1/0): ";
@@ -710,9 +714,7 @@ void UpdateUser(vector<sUser> &u)
         cout << "User updated successfully" << endl;
     }
     else
-    {
         cout << "User not found" << endl;
-    }
 }
 void FindUser(vector<sUser> &u)
 {
@@ -731,16 +733,16 @@ void FindUser(vector<sUser> &u)
         }
     }
     if (!found)
-    {
         cout << "User not found" << endl;
-    }
 }
+
 void ManageMenuUser(vector<sUser> &u, sUser &user)
 {
     while (true)
     {
         u = LoadfiletoUsersV();
         system("cls");
+
         cout << "\n===== Manage Users Menu Screen =====\n";
         cout << "1) List Users\n";
         cout << "2) Add New User\n";
@@ -754,7 +756,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
         cin >> choice;
         switch (choice)
         {
-        case 1:
+        case UMenu::eListUsers:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "List users selected.\n";
@@ -762,7 +764,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
             ShowUsersList(u);
             backtomainmenu();
             break;
-        case 2:
+        case UMenu::eAddUser:
             system("cls");
 
             cout << "==================================================================================" << endl;
@@ -771,7 +773,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
             CreateaUsers(u);
             backtomainmenu();
             break;
-        case 3:
+        case UMenu::eDeleteUser:
             system("cls");
 
             cout << "==================================================================================" << endl;
@@ -780,7 +782,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
             Deleteuser(u, user);
             backtomainmenu();
             break;
-        case 4:
+        case UMenu::eUpdateUser:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Update User selected.\n";
@@ -788,7 +790,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
             UpdateUser(u);
             backtomainmenu();
             break;
-        case 5:
+        case UMenu::eFindUser:
             system("cls");
 
             cout << "==================================================================================" << endl;
@@ -797,7 +799,7 @@ void ManageMenuUser(vector<sUser> &u, sUser &user)
             FindUser(u);
             backtomainmenu();
             break;
-        case 6:
+        case UMenu::eMainMenu:
             backtomainmenu();
             return;
         default:
@@ -821,6 +823,7 @@ void menu(vector<sUser> &u, sUser &user)
         v = LoadfiletoClientsV();
         u = LoadfiletoUsersV();
         system("cls");
+
         cout << "\n===== Client Management System =====\n";
         cout << "1) Show Clients\n";
         cout << "2) Add Client\n";
@@ -837,114 +840,84 @@ void menu(vector<sUser> &u, sUser &user)
 
         switch (choice)
         {
-        case 1:
+        case Menu::eShowClients:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Show Clients selected.\n";
             cout << "==================================================================================" << endl;
             if (Permission(user, 1))
-            {
                 ONEshowClientsList(v);
-            }
             else
-            {
                 NoPermissionText();
-            }
 
             backtomainmenu();
             break;
-        case 2:
+        case Menu::eAddClient:
             system("cls");
 
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Add Client selected.\n";
             cout << "==================================================================================" << endl;
             if (Permission(user, 2))
-            {
                 TWOcreateaclient(v);
-            }
             else
-            {
                 NoPermissionText();
-            }
 
             backtomainmenu();
             break;
-        case 3:
+        case Menu::eDeleteClient:
             system("cls");
 
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Delete Client selected.\n";
             cout << "==================================================================================" << endl;
             if (Permission(user, 3))
-            {
                 ThreeDeleteClient(v);
-            }
             else
-            {
                 NoPermissionText();
-            }
-
             backtomainmenu();
             break;
-        case 4:
+        case Menu::eUpdateClient:
             system("cls");
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Update Client selected.\n";
             cout << "==================================================================================" << endl;
             if (Permission(user, 4))
-            {
                 FourUpdateClient(v);
-            }
             else
-            {
                 NoPermissionText();
-            }
 
             backtomainmenu();
             break;
-        case 5:
+        case Menu::eFindClient:
             system("cls");
 
             cout << "==================================================================================" << endl;
             cout << setw(50) << right << "Find Client selected.\n";
             cout << "==================================================================================" << endl;
             if (Permission(user, 5))
-            {
                 FiveFindClient(v);
-            }
             else
-            {
                 NoPermissionText();
-            }
             backtomainmenu();
             break;
-        case 6:
+        case Menu::eTranscations:
             system("cls");
             if (Permission(user, 6))
-            {
                 TransactionMenu(v);
-            }
             else
-            {
                 NoPermissionText();
-                backtomainmenu();
-            }
-
+            backtomainmenu();
             break;
-        case 7:
+        case Menu::eUserMenu:
             system("cls");
             if (Permission(user, 7))
-            {
                 ManageMenuUser(u, user);
-            }
             else
-            {
                 NoPermissionText();
-                backtomainmenu();
-            }
+            backtomainmenu();
             break;
-        case 8:
+        case Menu::eLoginPage:
             return;
         default:
             cout << "Invalid choice. Try again.\n";
@@ -956,6 +929,7 @@ void menu(vector<sUser> &u, sUser &user)
 void loginScreen()
 {
     vector<sUser> u;
+    bool found = false;
     u = LoadfiletoUsersV();
     sUser user;
     while (true)
@@ -973,12 +947,16 @@ void loginScreen()
             if (user.Username == s.Username && user.password == s.password)
             {
                 menu(u, s);
+                found = true;
                 break;
             }
         }
-        cout << "User not found\n";
-        cin.ignore();
-        cin.get();
+        if (!found)
+        {
+            cout << "User not found\n";
+            cin.ignore();
+            cin.get();
+        }
     }
 }
 int main()

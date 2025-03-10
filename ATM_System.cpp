@@ -5,6 +5,8 @@
 #include <vector>
 #include <cmath>
 using namespace std;
+
+// Structure to hold client information
 typedef struct sClient
 {
     string AccountNumber;
@@ -14,6 +16,8 @@ typedef struct sClient
     double AccountBalance;
     bool MarkForDelete = false;
 } sClient;
+
+// Enum to represent ATM menu options
 enum AtmMenu
 {
     Quick_Withdraw = 1,
@@ -22,6 +26,8 @@ enum AtmMenu
     Balance = 4,
     Logout = 5
 };
+
+// Function to prompt user to go back to the main menu
 void backtomainmenu()
 {
     cout << endl;
@@ -29,6 +35,8 @@ void backtomainmenu()
     cin.ignore();
     cin.get();
 }
+
+// Function to split a string by a delimiter
 vector<string> SplitString(string S1, string Delim)
 {
     vector<string> vString;
@@ -49,6 +57,8 @@ vector<string> SplitString(string S1, string Delim)
     }
     return vString;
 }
+
+// Function to convert a line of data to a sClient structure
 sClient ConvertLineTosClient(string DataLine, string delim = "||")
 {
     sClient C;
@@ -60,18 +70,24 @@ sClient ConvertLineTosClient(string DataLine, string delim = "||")
     C.AccountBalance = stod(vString[4]);
     return C;
 }
+
+// Function to convert a sClient structure to a line of data
 string ConvertsClientToLine(sClient C, string delim = "||")
 {
     string DataLine = C.AccountNumber + delim + C.PinCode + delim + C.Name + delim + C.Phone + delim + to_string(C.AccountBalance);
     return DataLine;
 }
+
+// Function to load clients from a file into a vector
 vector<sClient> LoadfiletoClientsV()
 {
     vector<sClient> c;
     ifstream file;
     file.open("clients.txt");
     string DataLine;
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+    else
     {
         while (getline(file, DataLine))
         {
@@ -79,17 +95,18 @@ vector<sClient> LoadfiletoClientsV()
         }
         file.close();
     }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
-    }
     return c;
 }
+
+// Function to write clients from a vector to a file
 void write_V_ClientsToFile(vector<sClient> &c)
 {
     ofstream file;
     file.open("clients.txt");
-    if (file.is_open())
+    if (!file.is_open())
+        cout << "Error: Unable to open file" << endl;
+
+    else
     {
         for (sClient &client : c)
         {
@@ -100,19 +117,27 @@ void write_V_ClientsToFile(vector<sClient> &c)
         }
         file.close();
     }
-    else
-    {
-        cout << "Error: Unable to open file" << endl;
-    }
 }
 
-void Deposit(sClient &client)
+// Function to deposit an amount into a client's account
+void DepositAmount(sClient &client)
 {
     double amount;
+    char var;
     cout << "\nEnter the amount you want to deposit: ";
     cin >> amount;
-    client.AccountBalance += amount;
+    cout << "Are you sure you want perform this transaction?(y/n) ";
+    cin >> var;
+    if (var == 'y' || var == 'Y')
+    {
+        client.AccountBalance += amount;
+        cout << "Done successfully, New balance is: " << client.AccountBalance;
+    }
+    else cout << "Transaction is cancelled";
+    
 }
+
+// Function to withdraw an amount from a client's account
 void Withdraw(sClient &client)
 {
     double amount;
@@ -129,6 +154,7 @@ void Withdraw(sClient &client)
         {
             client.AccountBalance -= amount;
             valid = true;
+            cout << "Done successfully, New balance is: " << client.AccountBalance;
         }
         else
         {
@@ -139,13 +165,14 @@ void Withdraw(sClient &client)
         }
     } while (valid == false);
 }
+
+// Function to withdraw a specific amount from a client's account
 void WithdrawAmount(sClient &client, double amount)
 {
-    bool valid = false;
     if (client.AccountBalance >= amount)
     {
         client.AccountBalance -= amount;
-        valid = true;
+        cout << "Done successfully, New balance is: " << client.AccountBalance;
     }
     else
     {
@@ -155,6 +182,60 @@ void WithdrawAmount(sClient &client, double amount)
         cin.get();
     }
 }
+
+// Function to display the quick withdraw menu and handle quick withdraw transactions
+void QuickWithdrawMenu(sClient &client)
+{
+    while (true)
+    {
+        system("cls");
+        cout << "\n===== QUICK WITHDRAW MENU =====\n";
+        cout << "1)20\t";
+        cout << "2)50\n";
+        cout << "3)100\t";
+        cout << "4)200\n";
+        cout << "5)400\t";
+        cout << "6)600\n";
+        cout << "7)800\t";
+        cout << "8)1000\n";
+        cout << "9) Exit\n";
+        cout << "Enter your choice: ";
+
+        int choice;
+        cin >> choice;
+
+        double amounts[] = {20, 50, 100, 200, 400, 600, 800, 1000};
+
+        if (choice >= 1 && choice <= 8)
+        {
+            WithdrawAmount(client, amounts[choice - 1]);
+            backtomainmenu();
+            return;
+        }
+        else if (choice == 9)
+        {
+            backtomainmenu();
+            return;
+        }
+        else
+        {
+            cout << "Invalid choice. Try again.\n";
+        }
+    }
+}
+
+// Function to show the balance of a client's account
+void ShowBalance(const sClient &client)
+{
+    system("cls");
+    cout << "==================================================================================" << endl;
+    cout << setw(20) << "Balance Information\n";
+    cout << "==================================================================================" << endl;
+    cout << "Account Balance: " << fixed << setprecision(2) << client.AccountBalance << endl;
+    backtomainmenu();
+}
+
+// Function to display the transaction menu and handle transactions
 void TransactionMenu(sClient &client)
 {
     while (true)
@@ -178,8 +259,7 @@ void TransactionMenu(sClient &client)
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Quick Withdraw Selected.\n";
             cout << "==================================================================================" << endl;
-            Withdraw(client);
-            backtomainmenu();
+            QuickWithdrawMenu(client);
             break;
         case AtmMenu::Normal_Withdraw:
             system("cls");
@@ -194,6 +274,7 @@ void TransactionMenu(sClient &client)
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Deposit Selected.\n";
             cout << "==================================================================================" << endl;
+            DepositAmount(client);
             backtomainmenu();
             break;
         case AtmMenu::Balance:
@@ -201,9 +282,9 @@ void TransactionMenu(sClient &client)
             cout << "==================================================================================" << endl;
             cout << setw(20) << "Balance Selected.\n";
             cout << "==================================================================================" << endl;
+            ShowBalance(client);
             break;
         case AtmMenu::Logout:
-            system("cls");
             backtomainmenu();
             return;
         default:
@@ -211,18 +292,22 @@ void TransactionMenu(sClient &client)
         }
     }
 }
+
+// Function to display the login screen and handle user login
 void loginScreen()
 {
     vector<sClient> clients;
     clients = LoadfiletoClientsV();
     sClient Client;
+    bool found;
     while (true)
     {
+        found = false;
         system("cls");
         cout << "==================================================================================" << endl;
         cout << setw(50) << right << "Login Page\n";
         cout << "==================================================================================" << endl;
-        cout << "AccountNumber ";
+        cout << "AccountNumber: ";
         cin >> Client.AccountNumber;
         cout << "PinCode: ";
         cin >> Client.PinCode;
@@ -230,13 +315,24 @@ void loginScreen()
         {
             if (Client.AccountNumber == client.AccountNumber && Client.PinCode == client.PinCode)
             {
+                found = true;
                 TransactionMenu(client);
                 write_V_ClientsToFile(clients);
                 break;
             }
         }
-        cout << "Client not found or the password is wrong" << endl;
-        cin.ignore();
-        cin.get();
+        if (found == false)
+        {
+            cout << "Client not found or the password is wrong" << endl;
+            cout << "Press any key to continue...";
+            cin.ignore();
+            cin.get();
+        }
     }
+}
+
+int main()
+{
+    loginScreen();
+    return 0;
 }
