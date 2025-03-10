@@ -112,6 +112,8 @@ vector<sClient> LoadfiletoClientsV()
 }
 
 // Function to write clients from a vector to a file
+
+// Function to write clients from a vector to a file
 void write_V_ClientsToFile(vector<sClient> &c)
 {
     ofstream file;
@@ -444,6 +446,8 @@ void TransactionMenu(vector<sClient> &c)
 }
 
 // Function to calculate user permissions
+
+// Function to calculate user permissions
 void CountPermissionF(sUser &user)
 {
     bool arr[7], per;
@@ -482,6 +486,8 @@ void CountPermissionF(sUser &user)
 }
 
 // Function to check user permissions
+
+// Function to check user permissions
 bool Permission(sUser user, short numberofoption)
 {
     bool valid = false;
@@ -516,6 +522,8 @@ string ConvertsUserToLine(sUser &U, string delim = "||")
 }
 
 // Function to load users from a file into a vector
+
+// Function to load users from a file into a vector
 vector<sUser> LoadfiletoUsersV()
 {
     vector<sUser> u;
@@ -534,6 +542,8 @@ vector<sUser> LoadfiletoUsersV()
     }
     return u;
 }
+
+// Function to write users from a vector to a file
 
 // Function to write users from a vector to a file
 void write_V_UsersToFile(vector<sUser> &u)
@@ -815,6 +825,8 @@ void NoPermissionText()
 }
 
 // Function to display the main menu and handle client management
+
+// Function to display the main menu and handle client management
 void menu(vector<sUser> &u, sUser &user)
 {
     vector<sClient> v;
@@ -925,6 +937,7 @@ void menu(vector<sUser> &u, sUser &user)
     }
 }
 
+// Function to display the login screen and handle user login
 // Function to display the login screen and handle user login
 void loginScreen()
 {
